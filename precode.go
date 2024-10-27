@@ -14,7 +14,7 @@ type Task struct {
 	ID           string   `json:"id"`
 	Description  string   `json:"description"`
 	Note         string   `json:"note"`
-	Applications []string `json:"applications"`
+	Applications []string `json:"applications, omitempty"`
 }
 
 var tasks = map[string]Task{
@@ -56,11 +56,12 @@ func getTasks(rw http.ResponseWriter, _ *http.Request) {
 	//  статус OK
 	rw.WriteHeader(http.StatusOK)
 	//записываем сериализованные данные в тело ответа в формате JSON
-	rw.Write(resp)
+	_, _ = rw.Write(resp)
 }
 
 // эндпоинт для отправки задачи на сервер
 func postTask(rw http.ResponseWriter, req *http.Request) {
+
 	var task Task
 	var buf bytes.Buffer
 
@@ -69,11 +70,18 @@ func postTask(rw http.ResponseWriter, req *http.Request) {
 		http.Error(rw, err.Error(), http.StatusBadRequest)
 		return
 	}
+
 	//десериализация данных
 	if err = json.Unmarshal(buf.Bytes(), &task); err != nil {
 		http.Error(rw, err.Error(), http.StatusBadRequest)
 		return
 	}
+
+	if _, ok := tasks[task.ID]; ok {
+		http.Error(rw, "Задача присутствует в списке", http.StatusBadRequest)
+		return
+	}
+
 	tasks[task.ID] = task
 
 	rw.Header().Set("Content-Type", "application/json")
