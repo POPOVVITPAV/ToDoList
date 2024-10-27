@@ -14,7 +14,7 @@ type Task struct {
 	ID           string   `json:"id"`
 	Description  string   `json:"description"`
 	Note         string   `json:"note"`
-	Applications []string `json:"applications, omitempty"`
+	Applications []string `json:"applications"`
 }
 
 var tasks = map[string]Task{
